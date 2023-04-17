@@ -45,9 +45,9 @@ def inline(call):
         music_play_pause()
         music_edit_messange(id_messange_music, 0, 5)
     try:
-    	bot.answer_callback_query(call.id)
+        bot.answer_callback_query(call.id)
     except:
-    	print("То ли время истекло, то ли запрос недействителен")
+        print("То ли время истекло, то ли запрос недействителен")
 
 name_track_check = ""
 def music_edit_messange(id_messange_music, time_sleep, check):
@@ -56,16 +56,16 @@ def music_edit_messange(id_messange_music, time_sleep, check):
         name = checkNameTrack()
         status = status_player()
         if(status):
-        	status = "Плеер запущен"
+            status = "Плеер запущен"
         else:
-        	status = "Плеер остановлен"
+            status = "Плеер остановлен"
         global name_track_check
         name_track_check = name[0]+name[1]
 
         bot.edit_message_text(chat_id=my_chat_id, message_id=id_messange_music, text=f"Название песни: {name[0]} \nИсполнитель: {name[1]} \nГромкость: {volume_value()}%\nСтатус: {status}", reply_markup = buttons_music())
     except:
         if(check >= 5):
-        	return
+            return
         new_check = check + 1
         music_edit_messange(id_messange_music, time_sleep, new_check)
 
@@ -74,6 +74,7 @@ async def loop_check_name(message):
     while (1):
         name = checkNameTrack()
         check_name = name[0]+name[1]
+        global name_track_check
         if(name_track_check != check_name):
             id = message.id
             music_edit_messange(id, 0.1, 4)
