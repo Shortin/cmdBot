@@ -4,10 +4,13 @@ from telebot import types
 from config import *
 
 from botFunctionSound import music_but
-from soundSetting import volume_sound_expose, volume_sound_decrease, volume_sound_increase
-from function import *
+from soundSetting import volume_sound_setting
+from management import *
 
-# При удалении сообщения пропадают кнопки надо фиксить
+# Пофиксить кнопки
+# Проверить роботоспостобность
+# Откоментировать
+# дописать функцию про лию
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(my_chat_id, text = "Что-то хотели?", reply_markup = buttons_menu())
@@ -38,10 +41,10 @@ def func(message):
 
     elif(message.text == "-"):
         bot.delete_message(my_chat_id, message.message_id)
-        volume_sound_decrease(6)
+        volume_sound_setting("-6")
     elif(message.text == "+"):
         bot.delete_message(my_chat_id, message.message_id)
-        volume_sound_increase(6)
+        volume_sound_setting("+6")
 
     elif(message.text == "value" or message.text == "значение"):
         bot.send_message(my_chat_id, text = "Впишите значение: ")
@@ -54,28 +57,28 @@ def func(message):
 
     elif(message.text == "sec dimming" or message.text == "секунда"):
         bot.delete_message(my_chat_id, message.message_id)
-        screen_dimming_every_second()
+        screen_dimming_every("1")
     elif(message.text == "hour dimming" or message.text == "час"):
         bot.delete_message(my_chat_id, message.message_id)
-        screen_dimming_every_hour()
+        screen_dimming_every(3600)
 
-    elif(message.text == "ssh start" or message.text == "ссш старт"):
-        bot.send_message(my_chat_id, text = ssh_start(value))
-    elif(message.text == "ssh stop" or message.text == "ссш стоп"):
-        bot.send_message(my_chat_id, text = ssh_stop(value))
-    elif(message.text == "ssh status" or message.text == "ссш статус"):
-        print(ssh_status())
-        bot.send_message(my_chat_id, text = ssh_status())
+    # elif(message.text == "ssh start" or message.text == "ссш старт"):
+    #     bot.send_message(my_chat_id, text = ssh_start(value))
+    # elif(message.text == "ssh stop" or message.text == "ссш стоп"):
+    #     bot.send_message(my_chat_id, text = ssh_stop(value))
+    # elif(message.text == "ssh status" or message.text == "ссш статус"):
+    #     print(ssh_status())
+    #     bot.send_message(my_chat_id, text = ssh_status())
 
     elif(message.text == "xrdp start" or message.text == "хрдп старт"):
-        bot.send_message(my_chat_id, text = xrdp_start(value))
+        bot.send_message(my_chat_id, text = server_start(value, "xrdp"))
     elif(message.text == "xrdp stop" or message.text == "хрдп стоп"):
-        bot.send_message(my_chat_id, text = xrdp_stop(value))
+        bot.send_message(my_chat_id, text = server_stop(value, "xrdp"))
     elif(message.text == "xrdp status" or message.text == "хрдп статус"):
-        bot.send_message(my_chat_id, text = xrdp_status())
+        bot.send_message(my_chat_id, text = server_status("xrdp"))
 
 def value_volume(message):
-    volume_sound_expose(int(message.text))
+    volume_sound_setting(int(message.text))
     del_message(3, message)
 
 from time import sleep

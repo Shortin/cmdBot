@@ -1,26 +1,36 @@
 import os 
 from subprocess import Popen, PIPE
-from datetime import datetime
+import logging
 
-# Функция находит и возвращает название песни и имя артиста
+# Функция checkNameTrack() ищет название песни и имя артиста
+# функция music_play_pause() останавливает или запускает музыку
+# функция next_track() включает следующий трек
+# Функция status_player() проверяет остановлен или запущен плеер
+# Функция status_availability_player() провряет есть ли рабочий плеер
+# Функция volume_value() возвращает значение громкости плеера
+# функция volume_sound_setting() устанавливает громкость  звука
+
+
+
+
+# Функция checkNameTrack() ищет название песни и имя артиста
+# функция возвращает название песни и имя артиста, или сообщает о том что плеер отсутсвует, при ошибке возвращает False
 def checkNameTrack():
-    try:
-        command = "playerctl -l"
-        pipe = os.popen(command)
-        if(pipe.read() != ""):
-            check = os.popen('playerctl metadata').read().split("\n")
-            name_track = check[1].split("title")
-            name_track = name_track[1].strip()
-            name_artist = check[3].split("artist")
-            name_artist = name_artist[1].strip()
-            return name_track, name_artist
-        else:
-            return "Плеер выключен"
-    except:
-        print(f'Произошла ошибка  при поиске названия песни\nВремя:{datetime.now()}')
-        return False
+    command = "playerctl -l"
+    pipe = os.popen(command)
+    if(pipe.read() != ""):
+        check = os.popen('playerctl metadata').read().split("\n")
+        name_track = check[1].split("title")
+        name_track = name_track[1].strip()
+        name_artist = check[3].split("artist")
+        name_artist = name_artist[1].strip()
+        return name_track, name_artist
+    else:
+        return "Плеер отсутсвует"
 
-# Останавливает илил заускает песню
+
+# функция music_play_pause() останавливает или запускает музыку
+# Функция возрвразает True  если все удачно, либо сообщает о том что плеер отсутсвует
 def music_play_pause():
     command = "playerctl -l"
     pipe = os.popen(command)
@@ -29,10 +39,11 @@ def music_play_pause():
         os.system(command)
         return True
     else:
-        return "Плеер выключен"
+        return "Плеер отсутствует"
 
-# Запускает следующую песню
-def music_next():
+# функция next_track() включает следующий трек
+# Функция next_track() возрвразает True если все удачно, или сообщает о том что плеер отсутсвует
+def next_track():
     command = "playerctl -l"
     pipe = os.popen(command)
     if(pipe.read() != ""):
@@ -40,8 +51,10 @@ def music_next():
         os.system(command)
         return True
     else:
-        return "Плеер выключен"
+        return "Плеер отсутсвутет"
 
+# Функция status_player() проверяет остановлен или запущен плеер
+# Функция status_player() возрвразает True если плеер запущен или возвращает False если плеер остановлен
 def status_player():
     command = "playerctl status"
     pipe = os.popen(command)
@@ -51,58 +64,44 @@ def status_player():
     else:
         return False
 
-# Функция прибавляет звук системы
-def volume_sound_increase(value):
-    try:
-        checkVolume = os.popen('amixer -D pulse').read().split('[')
-        checkVolume = checkVolume[1].split('%')[0]
-        checkVolume = int(checkVolume) + value
-        if(checkVolume >= 100):
-            os.system (f'pactl set-sink-volume @DEFAULT_SINK@ 100%')
-            return "100"
-        os.system (f'pactl set-sink-volume @DEFAULT_SINK@ +{value}%')
-        return checkVolume
-    except:
-        print(f'Произошла ошибка  при увеличении звука\nВремя:{datetime.now()}')
+# Функция status_availability_player() провряет есть ли рабочий плеер
+# Функция status_availability_player() возрвразает True если плеер отсутсвует или возвращает False если плеер присутсвует
+def status_availability_player():
+    command = "playerctl status"
+    pipe = os.popen(command)
+    status = pipe.read()
+    if(status == ""):
+        return True
+    else:
         return False
 
-# Функция убaвляет звук системы
-def volume_sound_decrease(value):
-    try:
-        checkVolume = os.popen('amixer -D pulse').read().split('[')
-        checkVolume = checkVolume[1].split('%')[0]
-        checkVolume = int(checkVolume) - value
-        if(checkVolume <= 0):
-            os.system (f'pactl set-sink-volume @DEFAULT_SINK@ 0%')
-            return "0"
-        os.system (f'pactl set-sink-volume @DEFAULT_SINK@ -{value}%')
-        return checkVolume
-    except:
-        print(f'Произошла ошибка  при уменьшении звука\nВремя:{datetime.now()}')
-        return False
-
-
-# Функция выставляет выбраное знаение звука системы
-def volume_sound_expose(value):
-    try:
-        if(value <= 0):
-            os.system ('pactl set-sink-volume @DEFAULT_SINK@ 0%')
-            return "0"
-        elif(value >= 100):
-            os.system ('pactl set-sink-volume @DEFAULT_SINK@ 100%')
-            return "100"
-        else:
-            os.system (f'pactl set-sink-volume @DEFAULT_SINK@ {value}%')
-            return value
-    except:
-        print(f'Произошла ошибка  при выставлениии звука\nВремя:{datetime.now()}')
-        return False
-        
+# Функция volume_value() возвращает значение громкости плеера
 def volume_value():
-    try:
-        volume = os.popen('amixer -D pulse').read().split('[')
-        volume = volume[1].split('%')[0]
-        return volume
+    volume = os.popen('amixer -D pulse').read().split('[')
+    volume = volume[1].split('%')[0]
+    return volume
+
+# функция volume_sound_setting() устанавливает громкость  звука
+# Функция volume_sound_setting() принимает на вход значение "+число", "-число" или "число", при этом возращает значение которое получилось, если пришло неправельное значение возвращает false
+def volume_sound_setting(value):
+    checkVolume = volume_value()
+    if(value[0] == '-'):
+        checkVolume = int(checkVolume) - int(value[1:])
+    elif(value[0] == '+'):
+        checkVolume = int(checkVolume) + int(value[1:])
+    else:
+        checkVolume = int(value)
+    try:        
+        if(checkVolume >= 100):
+                os.system (f'pactl set-sink-volume @DEFAULT_SINK@ 100%')
+                return "100"
+        elif(checkVolume <= 0):
+                os.system (f'pactl set-sink-volume @DEFAULT_SINK@ 0%')
+                return "0"
+        else:
+            os.system (f'pactl set-sink-volume @DEFAULT_SINK@ {checkVolume}%')
+            return checkVolume
     except:
-        print(f'Произошла ошибка  при выведении звука\nВремя:{datetime.now()}')
+        logging.basicConfig(level=logging.error, filename="py_log.log",filemode="a", format="%(asctime)s %(levelname)s %(message)s")
+        logging.error(f"функция volume_sound_setting()(soundSetting.py) выдала ошибку, на вход пришло {value}")
         return False
